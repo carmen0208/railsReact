@@ -14,16 +14,29 @@ class Main extends React.Component{
   }
 
   addTweet(tweetToAdd) {
+    $.post("/tweets", {body: tweetToAdd})
+    .success(savedTweet =>{
+      let newTweetsList = this.state.tweetsList;
+      newTweetsList.unshift(savedTweet);
+      this.setState({tweetList: newTweetsList});
+    })
+    .error(error => console.log(error));
     //mockTweets.unshift({...})
-    let newTweetsList = this.state.tweetsList;
-    newTweetsList.unshift({id:Date.now(), name: 'God Carmen', body: tweetToAdd});
-    this.setState({tweetList: newTweetsList});
+    // let newTweetsList = this.state.tweetsList;
+    // newTweetsList.unshift({id:Date.now(), name: 'God Carmen', body: tweetToAdd});
+    // this.setState({tweetList: newTweetsList});
+  }
+
+  componentDidMount() {
+    $.ajax("/tweets")
+    .success(data => this.setState({tweetsList: data }))
+    .error(error => console.log(error));
   }
   render() {
     return(
       <div className="container">
         <TweetBox sendTweet={this.addTweet.bind(this)}/>
-        <TweetList tweets={mockTweets}/>
+        <TweetList tweets={this.state.tweetsList}/>
       </div>
     );
   }

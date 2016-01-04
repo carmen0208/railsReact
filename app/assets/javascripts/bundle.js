@@ -84,10 +84,30 @@
 	  _createClass(Main, [{
 	    key: "addTweet",
 	    value: function addTweet(tweetToAdd) {
+	      var _this2 = this;
+	
+	      $.post("/tweets", { body: tweetToAdd }).success(function (savedTweet) {
+	        var newTweetsList = _this2.state.tweetsList;
+	        newTweetsList.unshift(savedTweet);
+	        _this2.setState({ tweetList: newTweetsList });
+	      }).error(function (error) {
+	        return console.log(error);
+	      });
 	      //mockTweets.unshift({...})
-	      var newTweetsList = this.state.tweetsList;
-	      newTweetsList.unshift({ id: Date.now(), name: 'God Carmen', body: tweetToAdd });
-	      this.setState({ tweetList: newTweetsList });
+	      // let newTweetsList = this.state.tweetsList;
+	      // newTweetsList.unshift({id:Date.now(), name: 'God Carmen', body: tweetToAdd});
+	      // this.setState({tweetList: newTweetsList});
+	    }
+	  }, {
+	    key: "componentDidMount",
+	    value: function componentDidMount() {
+	      var _this3 = this;
+	
+	      $.ajax("/tweets").success(function (data) {
+	        return _this3.setState({ tweetsList: data });
+	      }).error(function (error) {
+	        return console.log(error);
+	      });
 	    }
 	  }, {
 	    key: "render",
@@ -96,7 +116,7 @@
 	        "div",
 	        { className: "container" },
 	        React.createElement(_TweetBox2.default, { sendTweet: this.addTweet.bind(this) }),
-	        React.createElement(_TweetList2.default, { tweets: mockTweets })
+	        React.createElement(_TweetList2.default, { tweets: this.state.tweetsList })
 	      );
 	    }
 	  }]);
