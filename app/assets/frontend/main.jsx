@@ -1,50 +1,40 @@
 import TweetBox from "./components/TweetBox";
 import TweetList from "./components/TweetList";
+import TweetStore from "./stores/TweetStore"
+import TweetActions from "./actions/TweetActions";
+TweetActions.getAllTweets();
+// let mockTweets =[
+//   { id: 1, name: 'Carmen Liu', body: 'My #FirstTweet'},
+//   { id: 2, name: 'Carmen Liu', body: 'My #SecondTweet'},
+//   { id: 3, name: 'Carmen Liu', body: 'My #ThirdTweet'},
+// ];
 
-let mockTweets =[
-  { id: 1, name: 'Carmen Liu', body: 'My #FirstTweet'},
-  { id: 2, name: 'Carmen Liu', body: 'My #SecondTweet'},
-  { id: 3, name: 'Carmen Liu', body: 'My #ThirdTweet'},
-];
+let getAppState = () => {
+  return {tweetsList: TweetStore.getAll() };
+}
 
 class Main extends React.Component{
   constructor(props) {
     super(props);
-    this.state = { tweetsList: mockTweets };
-  }
-
-  formattedTweets(tweetsList) {
-    let formattedList = tweetsList.map(tweet => {
-      tweet.formattedDate = moment(tweet.created_at).fromNow();
-      return tweet;
-    });
-    return {
-      tweetsList: tweetsList
-    };
-  }
-  addTweet(tweetToAdd) {
-    $.post("/tweets", {body: tweetToAdd})
-    .success(savedTweet =>{
-      let newTweetsList = this.state.tweetsList;
-      newTweetsList.unshift(savedTweet);
-      this.setState(this.formattedTweets(newTweetsList));
-    })
-    .error(error => console.log(error));
-    //mockTweets.unshift({...})
-    // let newTweetsList = this.state.tweetsList;
-    // newTweetsList.unshift({id:Date.now(), name: 'God Carmen', body: tweetToAdd});
-    // this.setState({tweetList: newTweetsList});
+    this.state = getAppState();
+    // this.state = { tweetsList: mockTweets };
+    this._onChange = this._onChange.bind(this);
   }
 
   componentDidMount() {
-    $.ajax("/tweets")
-    .success(data => this.setState(this.formattedTweets(data)))
-    .error(error => console.log(error));
+    TweetStore.addChangeListener(this._onChange);
+  }
+  componentWillUnmount() {
+    TweetStore.removeChangeListener(this._onChange);
+  }
+  _onChange() {
+    console.log(5, "Main._onChange");
+    this.setState(getAppState());
   }
   render() {
     return(
       <div className="container">
-        <TweetBox sendTweet={this.addTweet.bind(this)}/>
+        <TweetBox />
         <TweetList tweets={this.state.tweetsList}/>
       </div>
     );
